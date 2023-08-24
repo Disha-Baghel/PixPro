@@ -1,2 +1,2 @@
-# PixelPlay
+# PixPro
 Image Simulator Application
