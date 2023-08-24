@@ -1,2 +1,2 @@
 # PixPro
-Image Simulator Application
+Image Processing Application
