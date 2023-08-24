@@ -3,7 +3,7 @@
 typedef enum {}image_type;
 
 //declare header of image file
-struct tga_header {
+typedef struct tga_header {
 
     uint8_t img_ID;
     uint8_t color_map_type;
@@ -22,4 +22,8 @@ struct tga_header {
     uint8_t pixel_depth;
     uint8_t image_descriptor;
 
-};
+}HEADER;
+
+unsigned char *LoadTGAFile (char *filename, HEADER *header) {
+    
+}
