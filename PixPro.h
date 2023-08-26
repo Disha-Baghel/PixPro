@@ -1,29 +1,31 @@
-#include <fstream>
+#pragma once
 
-typedef enum {}image_type;
+#include <string>
 
-//declare header of image file
-typedef struct tga_header {
+namespace TGA {
 
-    uint8_t img_ID;
-    uint8_t color_map_type;
-    uint8_t image_type;
-    
-    //color map specification
-    uint16_t first_entry_index;
-    uint16_t color_map_length;
-    uint8_t color_map_entry_size;
+    typedef struct {
 
-    //image specification
-    uint16_t x_origin;
-    uint16_t y_origin;
-    uint16_t image_width;
-    uint16_t image_height;
-    uint8_t pixel_depth;
-    uint8_t image_descriptor;
+        uint8_t img_ID;
+        uint8_t color_map_type;
+        uint8_t image_type;
 
-}HEADER;
+        // color map specification
+        uint16_t first_entry_index;
+        uint16_t color_map_length;
+        uint8_t color_map_entry_size;
 
-unsigned char *LoadTGAFile (char *filename, HEADER *header) {
-    
+        // image specification
+        uint16_t x_origin;
+        uint16_t y_origin;
+        uint16_t image_width;
+        uint16_t image_height;
+        uint8_t pixel_depth;
+        uint8_t image_descriptor;
+
+    } Header; // Header struct for TGA file format
+
+    void load_header(const std::string& filename, Header &header);
+
+    void show_header(Header &header);
 }
