@@ -28,4 +28,6 @@ namespace TGA {
     void load_header(const std::string& filename, Header &header);
 
     void show_header(Header &header);
+
+    void read_pixel_data(const std::string& filename,Header &header);
 }
