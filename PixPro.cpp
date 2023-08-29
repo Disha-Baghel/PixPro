@@ -1,5 +1,6 @@
 #include "PixPro.h"
 #include <fstream>
+#include <vector>
 #include <iostream>
 
 #define tga_read_field_from_file(file, field)\
@@ -19,7 +20,7 @@ namespace TGA {
             std::cerr << "Error opening file: " << filename << std::endl;
             return ;
         }
-        
+
         tga_read_field_from_file(file, header.img_ID);
         tga_read_field_from_file(file, header.color_map_type);
         tga_read_field_from_file(file, header.image_type);
@@ -49,5 +50,31 @@ namespace TGA {
         tga_show_field(header.pixel_depth);
         tga_show_field(header.image_descriptor);
     }
+
+    void read_pixel_data(const std::string& filename, Header &header) {
+
+        std::ifstream file(filename);
+
+        std::vector<std::vector<int>> matrix(header.image_height, std::vector<int>(header.image_width*3));
+
+        for(uint16_t i = 0; i < header.image_height; i++){
+            for(uint16_t j = 0; j < header.image_width*3; j++) {
+                
+                char pixelValue;
+                
+                file.read((char*)&pixelValue, sizeof(pixelValue));
     
+                matrix[i][j] = (int)pixelValue;
+            }
+        }
+
+        //print pixel_data
+        for(uint16_t i = 0; i < header.image_height; i++){
+            for(uint16_t j = 0; j < header.image_width*3; j++) {
+
+                std::cout << matrix[i][j] << " ";
+            }
+            std::cout << std::endl;
+        }
+    }
 };
