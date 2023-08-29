@@ -9,5 +9,7 @@ int main () {
 
     TGA::show_header(header);
 
+    TGA::read_pixel_data("./Images/landscape.tga", header);
+
     return 0;
 } 
