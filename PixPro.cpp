@@ -44,16 +44,19 @@ namespace TGA {
         std::vector<std::vector<uint8_t>> matrix(header.image_height, std::vector<uint8_t>(header.image_width*3));
 
         //read pixel data
-        for(uint16_t i = 0; i < header.image_height; i++){
-            for(uint16_t j = 0; j < header.image_width*3; j++) {
+        if(header.image_type == 2) {
+            for(uint16_t i = 0; i < header.image_height; i++){
+                for(uint16_t j = 0; j < header.image_width*3; j++) {
                 
-                char pixelValue;
+                    char pixelValue;
                                 
-                file.get(pixelValue);
+                    file.get(pixelValue);
     
-                matrix[i][j] = pixelValue;
+                    matrix[i][j] = pixelValue;
+                }
             }
         }
+        
 
         //print pixel_data
         for(uint16_t i = 0; i < header.image_height; i++){
