@@ -1,9 +1,11 @@
 #pragma once
 
 #include <string>
+#include <cstdint>
 
 namespace TGA {
 
+    #pragma pack(push, 1)
     typedef struct {
 
         uint8_t img_ID;
@@ -24,6 +26,7 @@ namespace TGA {
         uint8_t image_descriptor;
 
     } Header; // Header struct for TGA file format
+    #pragma pack(pop)
 
     void load_header(const std::string& filename, Header &header);
 
