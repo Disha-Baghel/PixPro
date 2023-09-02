@@ -56,6 +56,10 @@ namespace TGA {
                 }
             }
         }
+
+        if(header.image_type == 10) {
+            
+        }
         
 
         //print pixel_data
