@@ -43,22 +43,43 @@ namespace TGA {
 
         std::vector<std::vector<uint8_t>> matrix(header.image_height, std::vector<uint8_t>(header.image_width*3));
 
+        // std::vector<uint8_t>
+
         //read pixel data
         if(header.image_type == 2) {
             for(uint16_t i = 0; i < header.image_height; i++){
-                for(uint16_t j = 0; j < header.image_width*3; j++) {
-                
-                    char pixelValue;
-                                
-                    file.get(pixelValue);
-    
-                    matrix[i][j] = pixelValue;
+                for(uint16_t j = 0; j < header.image_width * 3; j += 3) {
+               
+
+                    TGA_Color color;
+                    file.read((char*)&color, sizeof(TGA_Color));
+
+                    matrix[i][j] = color.b;
+                    matrix[i][j+1] = color.g;
+                    matrix[i][j+2] = color.r;
                 }
             }
         }
+        else if (header.image_type == 10) {
+            // for(uint16_t i = 0; i < header.image_height; i++){
+            //     for(uint16_t j = 0; j < header.image_width*3; j++) {
+                
+            //         char chunkheader;
+            //         file.get(chunkheader);
+            //         // matrix[i][j] = pixelValue;
 
-        if(header.image_type == 10) {
-            
+            //         if(chunkheader & 1<<7) { //same as if(chunkheader < 128)
+            //             chunkheader++;
+            //         }
+            //         else {
+            //             int no_of_times_to_repeat = chunkheader - 127;
+            //         }
+            //     }
+            // }
+            file.read((char*)&color, sizeof(TGA_Color));
+
+            while()
+
         }
         
 
