@@ -43,7 +43,7 @@ namespace TGA {
 
         std::vector<std::vector<uint8_t>> matrix(header.image_height, std::vector<uint8_t>(header.image_width*3));
 
-        // std::vector<uint8_t>
+        std::vector<TGA_Color> image(header.image_height*header.image_width);
 
         //read pixel data
         if(header.image_type == 2) {
@@ -54,9 +54,7 @@ namespace TGA {
                     TGA_Color color;
                     file.read((char*)&color, sizeof(TGA_Color));
 
-                    matrix[i][j] = color.b;
-                    matrix[i][j+1] = color.g;
-                    matrix[i][j+2] = color.r;
+                    image.push_back(color);
                 }
             }
         }
@@ -76,19 +74,38 @@ namespace TGA {
             //         }
             //     }
             // }
-            file.read((char*)&color, sizeof(TGA_Color));
+            int current_index = 0;
+            while(!file.eof()){
+                // TGA_Color color;
+                // file.read((char*)&color, sizeof(TGA_Color));
+                char chunkheader;
+                int times;
+                file.get(chunkheader);
+                TGA_Color color;
+                file.read((char*)&color, sizeof(TGA_Color));
+                
+                if(chunkheader & 1<<7) { //same as if(chunkheader > 128)
+                    times = chunkheader-127;
+                    for(int i=1; i<=times; i++) {
+                        image.push_back(color);
+                    }
+                }
+                else{
+                    chunkheader++;
+                    for(int i=0; i<chunkheader; i++) {
+                        file.read((char*)&color, sizeof(TGA_Color));
+                        image.push_back(color);
+                    }
+                }
 
-            while()
+            }
 
         }
         
 
         //print pixel_data
-        for(uint16_t i = 0; i < header.image_height; i++){
-            for(uint16_t j = 0; j < header.image_width*3; j++) {
-
-                std::cout << (int)matrix[i][j] << " ";
-            }
+        for (auto color: image){
+            std::cout<< (int)color.r<<" "<<(int)color.g<<" "<<(int)color.b;
             std::cout << std::endl;
         }
     }
