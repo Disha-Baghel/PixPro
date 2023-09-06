@@ -59,25 +59,8 @@ namespace TGA {
             }
         }
         else if (header.image_type == 10) {
-            // for(uint16_t i = 0; i < header.image_height; i++){
-            //     for(uint16_t j = 0; j < header.image_width*3; j++) {
-                
-            //         char chunkheader;
-            //         file.get(chunkheader);
-            //         // matrix[i][j] = pixelValue;
-
-            //         if(chunkheader & 1<<7) { //same as if(chunkheader < 128)
-            //             chunkheader++;
-            //         }
-            //         else {
-            //             int no_of_times_to_repeat = chunkheader - 127;
-            //         }
-            //     }
-            // }
             int current_index = 0;
             while(!file.eof()){
-                // TGA_Color color;
-                // file.read((char*)&color, sizeof(TGA_Color));
                 char chunkheader;
                 int times;
                 file.get(chunkheader);
