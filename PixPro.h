@@ -2,8 +2,16 @@
 
 #include <string>
 #include <cstdint>
+#include <vector>
 
 namespace TGA {
+
+    struct TGA_Color {
+        uint8_t b;
+        uint8_t g;
+        uint8_t r;
+        uint8_t a;
+    };
 
     #pragma pack(push, 1)
     typedef struct {
@@ -32,11 +40,7 @@ namespace TGA {
 
     void show_header(Header &header);
 
-    void read_pixel_data(const std::string& filename,Header &header);
+    std::vector<TGA_Color> read_pixel_data(const std::string& filename,Header &header);
 
-    struct TGA_Color {
-        uint8_t b;
-        uint8_t g;
-        uint8_t r;
-    };
+    void show_pixel_data(const Header& header, const std::vector<TGA_Color> &image);
 }
