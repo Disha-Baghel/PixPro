@@ -2,27 +2,56 @@
 #include <fstream>
 #include <vector>
 #include <iostream>
+#include <SDL2/SDL.h>
+#include <bitset>
 
-#define tga_show_field(field)\
-    std::cout << #field << ": " << field << std::endl
+#define tga_show_field(field) \
+    std::cout << #field << ": " << (int)field << std::endl
 
-namespace TGA {
+#define tga_load_field(file, field)\
+    file.read((char*)&field, sizeof(field))
 
+namespace TGA
+{
 
-    void load_header(const std::string& filename, Header &header) {
+    TGA_Image::TGA_Image() : data(NULL), width(0), height(0), bytespp(0) {}
 
-        std::ifstream file(filename);
+    TGA_Image::TGA_Image(int w, int h, int bpp) : data(NULL), width(w), height(h), bytespp(bpp) {
+        unsigned long nbytes = width*height*bytespp;
+        data = new unsigned char[nbytes];
+        memset(data, 0, nbytes);
+    }
 
-        if(!file.is_open()) {
-            std::cerr << "Error opening file: " << filename << std::endl;
-            return ;
-        }
+    TGA_Image::TGA_Image(const TGA_Image *img) {
+        width = img->width;
+        height  = img->height;
+        bytespp = img->bytespp;
+        unsigned long nbytes = width*height*bytespp;
+        data = new unsigned char[nbytes];
+        memcpy(data, img->data, nbytes);
+    }
 
-        file.read((char*)&header, sizeof(header));
+    TGA_Image & TGA_Image::operator=(const TGA_Image &img) {
 
     }
 
-    void show_header(Header &header) {
+
+    void load_header(const std::string &filename, Header &header)
+    {
+
+        std::ifstream file(filename);
+
+        if (!file.is_open())
+        {
+            std::cerr << "Error opening file: " << filename << std::endl;
+            return;
+        }
+
+        file.read((char *)&header, sizeof(header));        
+    }
+
+    void show_header(Header &header)
+    {
         tga_show_field(header.img_ID);
         tga_show_field(header.color_map_type);
         tga_show_field(header.image_type);
@@ -37,59 +66,138 @@ namespace TGA {
         tga_show_field(header.image_descriptor);
     }
 
-    void read_pixel_data(const std::string& filename, Header &header) {
+    std::vector<TGA_Color> read_pixel_data(const std::string &filename, Header &header)
+    {
 
         std::ifstream file(filename);
 
-        std::vector<std::vector<uint8_t>> matrix(header.image_height, std::vector<uint8_t>(header.image_width*3));
+        std::vector<TGA_Color> image(header.image_height * header.image_width);
 
-        std::vector<TGA_Color> image(header.image_height*header.image_width);
+        // read pixel data
+        if (header.image_type == 2)
+        {
+            for (uint16_t i = 0; i < header.image_height*header.image_width; i++)
+            {   
+                TGA_Color color;
+                file.read((char *)&color, sizeof(TGA_Color));
 
-        //read pixel data
-        if(header.image_type == 2) {
-            for(uint16_t i = 0; i < header.image_height; i++){
-                for(uint16_t j = 0; j < header.image_width * 3; j += 3) {
-               
-
-                    TGA_Color color;
-                    file.read((char*)&color, sizeof(TGA_Color));
-
+                // for (uint16_t j = 0; j < header.image_width * 3; j += 3)
+                // {
                     image.push_back(color);
-                }
+                // }
             }
         }
-        else if (header.image_type == 10) {
-            int current_index = 0;
-            while(!file.eof()){
-                char chunkheader;
-                int times;
+        else if (header.image_type == 10)
+        {
+            // int ok = 0;
+            // while (!file.eof())
+            // {
+            //     char chunkheader;
+            //     int times;
+            //     file.get(chunkheader);
+            //     std::cout<<" " << std::bitset<8>(chunkheader);
+            //     ok++;
+
+            //     if (chunkheader & (1 << 7))
+            //     { // same as if(chunkheader > 128)
+            //         times = chunkheader - 127;
+            //         TGA_Color color;
+            //         file.read((char *)&color, sizeof(TGA_Color));
+            //         for (int i = 0; i <= times; i++)
+            //         {
+            //             image.push_back(color);
+                        
+            //         }
+            //     }
+            //     else
+            //     {
+            //         chunkheader++;
+
+
+            //         for(int i=0; i<chunkheader; i++) {
+            //             TGA_Color color;
+            //             file.read((char*)&color, sizeof(TGA_Color));
+            //             image.push_back(color);
+                        
+            //         }
+            //     }
+            // }
+            // std::cout << '\n' << image.size();
+            // std::cout << '\n' << ok;
+
+
+            uint16_t pixelcount = header.image_height*header.image_width;
+            uint16_t currentpixel = 0;
+            uint16_t currentbyte = 0;
+            TGA_Color colorbuffer;
+
+            do {
+                char chunkheader = 0;
                 file.get(chunkheader);
-                TGA_Color color;
-                file.read((char*)&color, sizeof(TGA_Color));
-                
-                if(chunkheader & 1<<7) { //same as if(chunkheader > 128)
-                    times = chunkheader-127;
-                    for(int i=1; i<=times; i++) {
-                        image.push_back(color);
-                    }
+                if(!file.good()) {
+                    std::cerr <<"an error occurred while reading the data\n";
                 }
-                else{
+
+                if(chunkheader<128) {
                     chunkheader++;
                     for(int i=0; i<chunkheader; i++) {
-                        file.read((char*)&color, sizeof(TGA_Color));
-                        image.push_back(color);
+                        file.read((char *) colorbuffer.raw, bytespp);
                     }
                 }
 
-            }
-
+            }while();
         }
-        
 
-        //print pixel_data
-        for (auto color: image){
-            std::cout<< (int)color.r<<" "<<(int)color.g<<" "<<(int)color.b;
-            std::cout << std::endl;
+        return image;
+    }
+
+    void show_pixel_data(const Header& header, const std::vector<TGA_Color>& image)
+    {
+
+        int width = header.image_width;
+        int height = header.image_height;
+
+        if (SDL_Init(SDL_INIT_VIDEO) < 0)
+        {
+            SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "SDL_Init failed");
+        }
+
+        SDL_Window *window = SDL_CreateWindow("Image Display", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, width, height, SDL_WINDOW_SHOWN);
+        if (!window)
+        {
+            SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "SDL_CreateWindow failed");
+        }
+
+        SDL_Renderer *renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
+        if (!renderer)
+        {
+            SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "SDL_CreateRenderer failed");
+        }
+
+        bool quit = false;
+    
+        SDL_Event e;
+        while (!quit)
+        {
+            while (SDL_PollEvent(&e))
+            {
+                if (e.type == SDL_QUIT)
+                {
+                    quit = true;
+                }
+            }
+            SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
+            SDL_RenderClear(renderer);
+
+            for(int i=0; i<image.size(); i++) {
+                auto color = image[i];
+                SDL_SetRenderDrawColor(renderer, (uint8_t)color.r, (uint8_t)color.g, (uint8_t)color.b, 255);
+                int x = i % width;
+                int y = i / width;
+                
+                SDL_RenderDrawPoint(renderer, x, y);
+            } 
+            SDL_RenderPresent(renderer);
         }
     }
-};
+}
