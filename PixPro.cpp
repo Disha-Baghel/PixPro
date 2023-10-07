@@ -22,17 +22,30 @@ namespace TGA
         memset(data, 0, nbytes);
     }
 
-    TGA_Image::TGA_Image(const TGA_Image *img) {
-        width = img->width;
-        height  = img->height;
-        bytespp = img->bytespp;
+    TGA_Image::TGA_Image(const TGA_Image &img) {
+        width = img.width;
+        height  = img.height;
+        bytespp = img.bytespp;
         unsigned long nbytes = width*height*bytespp;
         data = new unsigned char[nbytes];
-        memcpy(data, img->data, nbytes);
+        memcpy(data, img.data, nbytes);
+    }
+
+    TGA_Image::~TGA_Image() {
+        if(data) delete [] data;
     }
 
     TGA_Image & TGA_Image::operator=(const TGA_Image &img) {
-
+        if(this != &img) {
+            if (data) delete [] data;
+            width = img.width;
+            height = img.height;
+            bytespp = img.bytespp;
+            unsigned long nbytes = width*height*bytespp;
+            data = new unsigned char[nbytes];
+            memcpy(data, img.data, nbytes);
+        }
+        return *this;
     }
 
 
@@ -46,8 +59,9 @@ namespace TGA
             std::cerr << "Error opening file: " << filename << std::endl;
             return;
         }
-
-        file.read((char *)&header, sizeof(header));        
+        // TGA_Image(header.image_width, header.image_height, header.pixel_depth);
+        file.read((char *)&header, sizeof(header));   
+           
     }
 
     void show_header(Header &header)
@@ -74,9 +88,14 @@ namespace TGA
         std::vector<TGA_Color> image(header.image_height * header.image_width);
 
         // read pixel data
+        int width = header.image_width;
+        int height = header.image_height;
+        int bytespp = header.pixel_depth>>3;  
+        unsigned long nbytes = width*height*bytespp;
+        unsigned char *data = new unsigned char[nbytes];
         if (header.image_type == 2)
         {
-            for (uint16_t i = 0; i < header.image_height*header.image_width; i++)
+            for (uint16_t i = 0; i < nbytes; i++)
             {   
                 TGA_Color color;
                 file.read((char *)&color, sizeof(TGA_Color));
@@ -86,6 +105,8 @@ namespace TGA
                     image.push_back(color);
                 // }
             }
+
+            // file.read((char*) image, nbytes);
         }
         else if (header.image_type == 10)
         {
@@ -126,7 +147,7 @@ namespace TGA
             // std::cout << '\n' << ok;
 
 
-            uint16_t pixelcount = header.image_height*header.image_width;
+            uint16_t pixelcount = height*width;
             uint16_t currentpixel = 0;
             uint16_t currentbyte = 0;
             TGA_Color colorbuffer;
@@ -142,10 +163,36 @@ namespace TGA
                     chunkheader++;
                     for(int i=0; i<chunkheader; i++) {
                         file.read((char *) colorbuffer.raw, bytespp);
+                        if(!file.good()) {
+                            std::cerr <<"an error occurred while reading the header\n";
+                        }
+                        for(int t=0; t<bytespp; t++) {
+                            data[currentbyte++] = colorbuffer.raw[t];
+                        }
+                        currentpixel++;
+                        if(currentpixel>pixelcount) {
+                            std::cerr << "1. Too many pixels read\n";
+                        }
+                    }
+                }
+                else{
+                    chunkheader -=127;
+                    file.read((char *) colorbuffer.raw, bytespp);
+                    if(!file.good()) {
+                        std::cerr <<"an error occurred while reading the header\n";
+                    }
+                    for(int i=0; i<chunkheader; i++) {
+                        for(int t=0; t<bytespp; t++) {
+                            data[currentbyte++] = colorbuffer.raw[t];
+                        }
+                        currentpixel++;
+                        if(currentpixel>pixelcount) {
+                            std::cerr << "2. Too many pixels read\n";
+                        }
                     }
                 }
 
-            }while();
+            }while(currentpixel<pixelcount);
         }
 
         return image;
