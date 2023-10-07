@@ -10,9 +10,9 @@ int main (int argc, char* argv[]) {
 
     TGA_image.show_header(header);
 
-    auto image = TGA::read_pixel_data("./Images/dragon.tga", header);
+    // auto image = TGA::read_pixel_data("./Images/dragon.tga", header);
 
-    TGA::show_pixel_data(header, image);
+    // TGA::show_pixel_data(header, image);
 
     return 0;
 } 
