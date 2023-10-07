@@ -63,9 +63,7 @@ namespace TGA {
     } Header; // Header struct for TGA file format
     #pragma pack(pop)
 
-    void load_header(const std::string& filename, Header &header);
-
-    void show_header(Header &header);
+    
 
     std::vector<TGA_Color> read_pixel_data(const std::string& filename,Header &header);
 
@@ -87,7 +85,7 @@ namespace TGA {
         TGA_Image(int w, int h, int bpp);
         TGA_Image(const TGA_Image &img);
         
-        
+
         TGA_Color get(int x, int y);
         bool set(int x, int y, TGA_Color c);
         ~TGA_Image();
@@ -97,5 +95,8 @@ namespace TGA {
         int get_bytespp();
         unsigned char *buffer();
         void clear();
+        void load_header(const std::string& filename, Header &header);
+
+        void show_header(Header &header);
     };
 }
