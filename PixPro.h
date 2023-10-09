@@ -65,9 +65,7 @@ namespace TGA {
 
     
 
-    std::vector<TGA_Color> read_pixel_data(const std::string& filename,Header &header);
-
-    void show_pixel_data(const Header& header, const std::vector<TGA_Color> &image);
+    
 
     class TGA_Image {
         protected: 
@@ -98,5 +96,9 @@ namespace TGA {
         void load_header(const std::string& filename, Header &header);
 
         void show_header(Header &header);
+        
+        std::vector<TGA_Color> read_pixel_data(const std::string& filename,Header &header);
+
+        void show_pixel_data(const Header& header, const std::vector<TGA_Color> &image);
     };
 }
