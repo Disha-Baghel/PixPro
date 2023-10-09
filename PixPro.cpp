@@ -49,7 +49,7 @@ namespace TGA
     }
 
 
-    void load_header(const std::string &filename, Header &header)
+    void TGA_Image::load_header(const std::string &filename, Header &header)
     {
 
         std::ifstream file(filename);
@@ -59,12 +59,12 @@ namespace TGA
             std::cerr << "Error opening file: " << filename << std::endl;
             return;
         }
-        // TGA_Image(header.image_width, header.image_height, header.pixel_depth);
+        
         file.read((char *)&header, sizeof(header));   
            
     }
 
-    void show_header(Header &header)
+    void TGA_Image::show_header(Header &header)
     {
         tga_show_field(header.img_ID);
         tga_show_field(header.color_map_type);
@@ -80,7 +80,7 @@ namespace TGA
         tga_show_field(header.image_descriptor);
     }
 
-    std::vector<TGA_Color> read_pixel_data(const std::string &filename, Header &header)
+    std::vector<TGA_Color> TGA_Image::read_pixel_data(const std::string &filename, Header &header)
     {
 
         std::ifstream file(filename);
@@ -88,24 +88,28 @@ namespace TGA
         std::vector<TGA_Color> image(header.image_height * header.image_width);
 
         // read pixel data
-        int width = header.image_width;
-        int height = header.image_height;
-        int bytespp = header.pixel_depth>>3;  
+        width = header.image_width;
+        height = header.image_height;
+        bytespp = header.pixel_depth>>3;  
         unsigned long nbytes = width*height*bytespp;
-        unsigned char *data = new unsigned char[nbytes];
+        data = new unsigned char[nbytes];
         if (header.image_type == 2)
         {
-            for (uint16_t i = 0; i < nbytes; i++)
-            {   
-                TGA_Color color;
-                file.read((char *)&color, sizeof(TGA_Color));
+            // for (uint16_t i = 0; i < nbytes; i++)
+            // {   
+            //     TGA_Color color;
+            //     file.read((char *)&color, sizeof(TGA_Color));
 
-                // for (uint16_t j = 0; j < header.image_width * 3; j += 3)
-                // {
-                    image.push_back(color);
-                // }
+            //     // for (uint16_t j = 0; j < header.image_width * 3; j += 3)
+            //     // {
+            //         image.push_back(color);
+            //     // }
+            // }
+            file.read((char*) data, nbytes);
+            if(!file.good()) {
+                std::cerr << "an error occurred while reading the data\n";
             }
-
+            
             // file.read((char*) image, nbytes);
         }
         else if (header.image_type == 10)
@@ -194,11 +198,15 @@ namespace TGA
 
             }while(currentpixel<pixelcount);
         }
+        else {
+            file.close();
+            std::cerr << "unknown file format" << (int) header.image_type << std::endl;
+        }
 
         return image;
     }
 
-    void show_pixel_data(const Header& header, const std::vector<TGA_Color>& image)
+    void TGA_Image::show_pixel_data(const Header& header, const std::vector<TGA_Color>& image)
     {
 
         int width = header.image_width;
@@ -241,7 +249,7 @@ namespace TGA
                 SDL_SetRenderDrawColor(renderer, (uint8_t)color.r, (uint8_t)color.g, (uint8_t)color.b, 255);
                 int x = i % width;
                 int y = i / width;
-                
+
                 SDL_RenderDrawPoint(renderer, x, y);
             } 
             SDL_RenderPresent(renderer);
