@@ -7,14 +7,14 @@
 namespace TGA {
 
     struct TGA_Color {
-        union {
+        // union { 
             struct {uint8_t b;
             uint8_t g;
             uint8_t r;
             uint8_t a;};
             uint8_t raw[4];
             uint32_t val;
-        };
+        // };
         int bytespp;
         TGA_Color() : val(0), bytespp(1) {}
 
@@ -62,10 +62,6 @@ namespace TGA {
 
     } Header; // Header struct for TGA file format
     #pragma pack(pop)
-
-    
-
-    
 
     class TGA_Image {
         protected: 
