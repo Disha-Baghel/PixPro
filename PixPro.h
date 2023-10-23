@@ -7,16 +7,17 @@
 namespace TGA {
 
     struct TGA_Color {
-        // union { 
+
             struct {uint8_t b;
             uint8_t g;
             uint8_t r;
             uint8_t a;};
             uint8_t raw[4];
             uint32_t val;
-        // };
+    
         int bytespp;
-        TGA_Color() : val(0), bytespp(1) {}
+
+        TGA_Color() : b(0), g(0), r(0), a(0), val(0), bytespp(1) {}
 
         TGA_Color(unsigned char R, unsigned char G, unsigned char B, unsigned char A) : b(B), g(G), r(R), a(A), bytespp(4){}
 
@@ -92,6 +93,14 @@ namespace TGA {
         void load_header(const std::string& filename, Header &header);
 
         void show_header(Header &header);
+
+        bool write_tga_file(const char* filename, bool rle=true);
+        bool unload_rle_data(std::ofstream &out);
+
+        bool flip_horizontally();
+        bool flip_vertically();
+	    bool scale(int w, int h);
+        
         
         std::vector<TGA_Color> read_pixel_data(const std::string& filename,Header &header);
 
